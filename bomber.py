@@ -275,10 +275,7 @@ def workernode(mode, cc, target, count, delay, max_threads):
     success, failed = 0, 0
     while success < count:
         with ThreadPoolExecutor(max_workers=max_threads) as executor:
-            jobs = []
-            for i in range(count-success):
-                jobs.append(executor.submit(api.hit))
-
+            jobs = [executor.submit(api.hit) for _ in range(count-success)]
             for job in as_completed(jobs):
                 result = job.result()
                 if result is None:
@@ -315,7 +312,7 @@ def selectnode(mode="sms"):
         if mode in ["sms", "call"]:
             cc, target = get_phone_info()
             if cc != "91":
-                max_limit.update({"sms": 100})
+                max_limit["sms"] = 100
         elif mode == "mail":
             target = get_mail_info()
         else:
